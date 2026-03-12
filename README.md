@@ -75,7 +75,7 @@ The VLA handles four language-conditioned sub-tasks through a single checkpoint:
 - [x] Data collection pipeline → LeRobot format
 - [x] SmolVLA LoRA fine-tuning (v0 toy checkpoint)
 - [x] SewerBench evaluation harness
-- [ ] HuggingFace release (dataset + model)
+- [x] HuggingFace release (dataset + model)
 - [ ] Isaac Sim full environment (DGX Cloud)
 - [ ] Synthetic data at scale (10K+ episodes)
 - [ ] SmolVLA-SewerBot v1 (production checkpoint)
