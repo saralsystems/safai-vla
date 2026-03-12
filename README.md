@@ -29,7 +29,7 @@ Phase 1 (Isaac Sim on DGX Cloud) in progress.
 ## Quickstart
 
 ```bash
-git clone https://github.com/saral-systems/sewer-vla.git
+git clone https://github.com/saralsystems/sewer-vla.git
 cd sewer-vla
 pip install -e ".[dev]"
 
