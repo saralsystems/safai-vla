@@ -1,0 +1,194 @@
+PROJECT: sewer-vla
+TAGLINE: Open-source Vision-Language-Action model for autonomous sewer maintenance robotics in India
+ORG: saral-systems
+LICENSE: Apache-2.0
+PYTHON: 3.11
+STATUS: v0 — MuJoCo proxy environment + toy checkpoint
+
+================================================================================
+WHAT THIS IS
+================================================================================
+
+An open-source VLA model that enables sewer robots to autonomously navigate,
+assess, extract sludge, and deposit it — without any human entering the sewer.
+Trained entirely on synthetic data. Designed for Indian municipal infrastructure
+(irregular hand-built tunnels, not European pipe standards). Runs on sub-₹2 lakh
+edge hardware (Jetson Orin) with zero cloud dependency.
+
+The project has two phases:
+  Phase 0 (NOW):  MuJoCo proxy env + SmolVLA toy checkpoint on MacBook
+  Phase 1 (NEXT): Isaac Sim full env + production checkpoint on DGX Cloud
+
+================================================================================
+ARCHITECTURE OVERVIEW
+================================================================================
+
+Pipeline: Synthetic Env → Expert Demos → LeRobot Dataset → SmolVLA LoRA → TensorRT → Jetson
+
+Model:
+  - Base: SmolVLA (~1.5B params) from HuggingFace
+  - Vision: SigLIP-SO 400M, dual camera (front RGB-D 640x480 + wrist RGB 224x224)
+  - Language: SmolLM2-135M (frozen), task-conditioned
+  - Action head: Diffusion-based ACT, 50-step chunks @ 10Hz
+  - Fine-tuning: LoRA rank 64 on vision encoder + action head
+  - Action space: 7-DOF (6 arm joint velocities + 1 scoop aperture)
+
+Sub-tasks (language-conditioned):
+  1. "navigate to blockage" — base velocity control, arm stowed
+  2. "assess and position for extraction" — arm positioning, scoop alignment
+  3. "extract sludge at current position" — manipulation + scoop aperture
+  4. "deposit extracted material" — arm to collection bin
+
+Reference robot embodiment:
+  - Tracked differential-drive base, 600mm width
+  - 6-DOF articulated arm with scoop end-effector
+  - Front RGB-D camera, wrist RGB camera, IMU, joint encoders
+
+================================================================================
+DIRECTORY STRUCTURE
+================================================================================
+
+sewer-vla/
+├── app_spec.txt              # this file
+├── claude.md                 # claude code autonomous build instructions
+├── README.md                 # project overview, vision, quickstart
+├── pyproject.toml            # project config, dependencies
+├── Makefile                  # common commands
+│
+├── envs/
+│   ├── mujoco/
+│   │   ├── __init__.py
+│   │   ├── sewer_env.py      # MuJoCo sewer environment (Gymnasium API)
+│   │   ├── assets/
+│   │   │   └── sewer_robot.xml  # MJCF robot + pipe model
+│   │   ├── params.py         # env parameters (pipe dims, randomization ranges)
+│   │   └── test_env.py       # env smoke tests
+│   └── isaac/
+│       ├── README.md         # placeholder — Isaac Sim env (Phase 1)
+│       └── sewer_env_cfg.py  # Isaac Lab env config stub
+│
+├── policies/
+│   ├── __init__.py
+│   ├── navigate.py           # scripted expert: navigate to blockage
+│   ├── position.py           # scripted expert: assess and position
+│   ├── extract.py            # scripted expert: scoop and extract
+│   ├── deposit.py            # scripted expert: deposit material
+│   └── base.py               # base class for scripted policies
+│
+├── data/
+│   ├── __init__.py
+│   ├── collect.py            # run expert policies, record episodes
+│   ├── export_lerobot.py     # convert episodes → LeRobot HF format
+│   ├── push_to_hub.py        # push dataset to HuggingFace Hub
+│   └── validate.py           # dataset quality checks
+│
+├── training/
+│   ├── __init__.py
+│   ├── finetune.py           # SmolVLA LoRA fine-tuning script
+│   ├── config.py             # training hyperparameters
+│   └── eval_during_train.py  # in-loop evaluation callbacks
+│
+├── evaluation/
+│   ├── __init__.py
+│   ├── sewerbench.py         # SewerBench evaluation harness
+│   ├── metrics.py            # success rate, volume, collisions, latency
+│   └── visualize.py          # episode replay + metric plots
+│
+├── deployment/
+│   ├── README.md             # TensorRT conversion + Jetson guide
+│   ├── export_onnx.py        # model → ONNX
+│   ├── convert_trt.py        # ONNX → TensorRT (FP16/INT8)
+│   └── inference.py          # real-time inference loop
+│
+├── docs/
+│   ├── ARCHITECTURE.md       # detailed architecture doc
+│   ├── EMBODIMENT.md         # reference robot spec
+│   ├── CONTRIBUTING.md       # how to contribute
+│   ├── SEWER_PARAMS.md       # Indian sewer geometry reference (CPHEEO/NEERI)
+│   └── ROADMAP.md            # v0 → v1 → v2 roadmap
+│
+├── assets/
+│   ├── architecture.mermaid  # homepage architecture diagram
+│   └── banner.svg            # repo banner
+│
+└── .github/
+    └── workflows/
+        └── ci.yml            # lint + env smoke test + dataset validation
+
+================================================================================
+PHASE 0 SCOPE (what to build NOW on MacBook)
+================================================================================
+
+1. MuJoCo sewer environment
+   - Cylindrical pipe section (parameterized diameter 600-1200mm)
+   - Tracked robot base + 6-DOF arm + scoop end-effector in MJCF XML
+   - Rigid-body "sludge blocks" at pipe floor (proxy for particle fluid)
+   - Gymnasium API: obs = {front_rgb, wrist_rgb, joint_pos, ee_pos}, act = 7-DOF
+   - Domain randomization: pipe diameter, sludge block count/position, lighting
+   - 4 task variants via language prompt string in obs dict
+
+2. Scripted expert policies
+   - One per sub-task, heuristic controllers using known geometry
+   - Must achieve >90% success rate in MuJoCo env
+   - Deterministic + noisy variants (for demonstration diversity)
+
+3. Data collection pipeline
+   - Run experts for 500+ episodes across 4 sub-tasks
+   - Record in LeRobot-compatible format (HF datasets)
+   - Push to HuggingFace Hub as saral-systems/sewer-vla-mujoco-v0
+
+4. SmolVLA LoRA fine-tuning
+   - Load SmolVLA from HuggingFace
+   - LoRA rank 64 on vision encoder + action head
+   - Train on collected episodes (overnight run on M4 Pro is fine)
+   - Push adapter to HuggingFace as saral-systems/smolvla-sewerbot-v0
+
+5. SewerBench evaluation
+   - Run trained model in MuJoCo env
+   - Report: success rate per task, avg completion time, collision count
+   - Save eval results as JSON + generate summary plots
+
+6. Documentation
+   - README with vision, quickstart, architecture diagram
+   - Model card for HF checkpoint
+   - Dataset card for HF dataset
+   - CONTRIBUTING.md with clear onramps
+
+================================================================================
+TECH STACK
+================================================================================
+
+Core:
+  - mujoco >= 3.0 (native macOS Metal support)
+  - gymnasium
+  - lerobot (HuggingFace)
+  - transformers + peft (LoRA)
+  - torch (MPS backend for Mac, CUDA for DGX)
+  - datasets (HuggingFace)
+  - numpy, scipy
+
+Evaluation:
+  - matplotlib (metric plots)
+  - imageio (episode GIF export)
+
+Deployment (Phase 1):
+  - onnx, onnxruntime
+  - tensorrt (Jetson only)
+
+Dev:
+  - ruff (lint + format)
+  - pytest
+  - pre-commit
+
+================================================================================
+KEY CONSTRAINTS
+================================================================================
+
+- MuJoCo env must work on macOS M-series (no CUDA dependency)
+- All code must be runnable without GPU (slow is fine, broken is not)
+- LeRobot dataset format is non-negotiable — this is what the community uses
+- SmolVLA is the base model — do not substitute
+- Apache 2.0 license — no GPL dependencies
+- No cloud dependency in inference path
+- Observation space must match between MuJoCo (Phase 0) and Isaac Sim (Phase 1)
+  so that models trained on either can be evaluated on both

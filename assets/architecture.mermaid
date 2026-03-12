@@ -1,0 +1,8 @@
+graph LR
+    SIM["Synthetic Training<br/><i>Isaac Sim · Indian sewer geometry<br/>10,000+ episodes</i>"]
+    MODEL["SmolVLA-SewerBot<br/><i>1.5B param VLA · LoRA fine-tuned<br/>4 language-conditioned sub-tasks</i>"]
+    EDGE["Edge Deployment<br/><i>Jetson Orin · TensorRT · &lt;100ms<br/>sub-₹2L hardware · no cloud</i>"]
+    ROBOT["Autonomous Operation<br/><i>navigate · assess · extract · deposit<br/>zero human entry</i>"]
+    SIM --> MODEL --> EDGE --> ROBOT
+    OPEN["Open Source<br/><i>weights · dataset · environments<br/>Apache 2.0</i>"]
+    MODEL --> OPEN

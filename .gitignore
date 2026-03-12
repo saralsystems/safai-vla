@@ -1,0 +1,38 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# data artifacts
+data/raw/
+data/lerobot/
+data/raw_test/
+data/lerobot_test/
+
+# training artifacts
+checkpoints/
+wandb/
+*.ckpt
+*.pt
+*.safetensors
+
+# evaluation outputs
+evaluation/results/*.json
+evaluation/results/*.png
+evaluation/results/episodes/
+
+# env
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# MuJoCo
+*.mjlog

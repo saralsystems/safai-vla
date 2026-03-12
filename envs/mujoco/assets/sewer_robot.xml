@@ -1,0 +1,244 @@
+<mujoco model="sewer_robot">
+  <compiler angle="radian" autolimits="true"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicit">
+    <flag contact="enable"/>
+  </option>
+
+  <default>
+    <joint damping="0.5" armature="0.1"/>
+    <geom condim="3" friction="1.0 0.5 0.001" solref="0.02 1"/>
+    <motor ctrlrange="-1 1" ctrllimited="true"/>
+  </default>
+
+  <asset>
+    <texture name="pipe_tex" type="2d" builtin="flat" rgb1="0.4 0.38 0.35"
+             rgb2="0.35 0.33 0.3" width="256" height="256"/>
+    <material name="pipe_mat" texture="pipe_tex" specular="0.1" shininess="0.1"/>
+    <texture name="sludge_tex" type="2d" builtin="flat" rgb1="0.25 0.2 0.15"
+             rgb2="0.3 0.22 0.12" width="64" height="64"/>
+    <material name="sludge_mat" texture="sludge_tex" specular="0.0" shininess="0.0"/>
+    <texture name="robot_tex" type="2d" builtin="flat" rgb1="0.7 0.4 0.1"
+             rgb2="0.6 0.35 0.1" width="64" height="64"/>
+    <material name="robot_mat" texture="robot_tex" specular="0.3" shininess="0.5"/>
+    <texture name="metal_tex" type="2d" builtin="flat" rgb1="0.5 0.5 0.5"
+             rgb2="0.45 0.45 0.45" width="64" height="64"/>
+    <material name="metal_mat" texture="metal_tex" specular="0.5" shininess="0.7"/>
+    <texture name="floor_tex" type="2d" builtin="checker" rgb1="0.3 0.28 0.25"
+             rgb2="0.35 0.32 0.28" width="256" height="256"/>
+    <material name="floor_mat" texture="floor_tex" texrepeat="4 4"/>
+  </asset>
+
+  <worldbody>
+    <!-- Ambient light -->
+    <light name="ambient" pos="1.5 0 0.8" dir="0 0 -1" diffuse="0.6 0.6 0.6"
+           specular="0.2 0.2 0.2" directional="false"/>
+    <light name="headlight" pos="0.5 0 0.4" dir="1 0 -0.3" diffuse="0.4 0.4 0.4"
+           specular="0.1 0.1 0.1" directional="false"/>
+
+    <!-- Ground plane (pipe floor) -->
+    <geom name="floor" type="plane" size="2 0.5 0.01" pos="1.5 0 0"
+          material="floor_mat" contype="1" conaffinity="1"/>
+
+    <!-- Pipe walls: approximated as box geoms forming a trough/tunnel -->
+    <!-- Left wall -->
+    <geom name="pipe_wall_left" type="box" size="1.5 0.025 0.45" pos="1.5 -0.45 0.45"
+          material="pipe_mat" contype="1" conaffinity="1"/>
+    <!-- Right wall -->
+    <geom name="pipe_wall_right" type="box" size="1.5 0.025 0.45" pos="1.5 0.45 0.45"
+          material="pipe_mat" contype="1" conaffinity="1"/>
+    <!-- Ceiling -->
+    <geom name="pipe_ceiling" type="box" size="1.5 0.45 0.025" pos="1.5 0 0.9"
+          material="pipe_mat" contype="1" conaffinity="1"/>
+    <!-- Back wall (closed end) -->
+    <geom name="pipe_back" type="box" size="0.025 0.45 0.45" pos="3.0 0 0.45"
+          material="pipe_mat" contype="1" conaffinity="1"/>
+
+    <!-- Deposit zone marker (beside robot, within arm reach) -->
+    <site name="deposit_zone" type="box" size="0.2 0.2 0.005" pos="0.3 0.3 0.001"
+          rgba="0.2 0.8 0.2 0.3"/>
+
+    <!-- ============ ROBOT ============ -->
+    <body name="base" pos="0.3 0 0.08">
+      <joint name="base_x" type="slide" axis="1 0 0" range="-0.5 3.5" damping="2"/>
+      <joint name="base_y" type="slide" axis="0 1 0" range="-0.4 0.4" damping="0.5"/>
+      <joint name="base_yaw" type="hinge" axis="0 0 1" range="-1.57 1.57" damping="1"/>
+      <geom name="base_body" type="box" size="0.4 0.28 0.06" mass="15"
+            material="robot_mat" contype="1" conaffinity="1"
+            friction="0.1 0.05 0.001"/>
+      <!-- Left track -->
+      <geom name="track_l" type="box" size="0.35 0.03 0.04" pos="0 -0.25 -0.04"
+            material="metal_mat" contype="1" conaffinity="1" mass="2"
+            friction="0.3 0.1 0.001"/>
+      <!-- Right track -->
+      <geom name="track_r" type="box" size="0.35 0.03 0.04" pos="0 0.25 -0.04"
+            material="metal_mat" contype="1" conaffinity="1" mass="2"
+            friction="0.3 0.1 0.001"/>
+
+      <!-- Front camera -->
+      <camera name="front_cam" pos="0.4 0 0.1" xyaxes="0 -1 0 0 0 1"
+              fovy="60" resolution="640 480"/>
+
+      <!-- ============ ARM ============ -->
+      <!-- Shoulder (J1): pitch, mounted on top of base -->
+      <body name="shoulder" pos="0.1 0 0.06">
+        <joint name="j1" type="hinge" axis="0 1 0" range="-2.0 2.0"/>
+        <geom name="link1" type="capsule" fromto="0 0 0 0 0 0.2" size="0.03"
+              mass="1.5" material="metal_mat"/>
+
+        <!-- Upper arm (J2): pitch -->
+        <body name="upper_arm" pos="0 0 0.2">
+          <joint name="j2" type="hinge" axis="0 1 0" range="-2.5 2.5"/>
+          <geom name="link2" type="capsule" fromto="0 0 0 0.25 0 0" size="0.025"
+                mass="1.0" material="metal_mat"/>
+
+          <!-- Forearm (J3): pitch -->
+          <body name="forearm" pos="0.25 0 0">
+            <joint name="j3" type="hinge" axis="0 1 0" range="-2.5 2.5"/>
+            <geom name="link3" type="capsule" fromto="0 0 0 0.2 0 0" size="0.02"
+                  mass="0.8" material="metal_mat"/>
+
+            <!-- Wrist (J4): pitch -->
+            <body name="wrist" pos="0.2 0 0">
+              <joint name="j4" type="hinge" axis="0 1 0" range="-3.14 3.14"/>
+              <geom name="link4" type="capsule" fromto="0 0 0 0.1 0 0" size="0.015"
+                    mass="0.5" material="metal_mat"/>
+
+              <!-- Wrist camera -->
+              <camera name="wrist_cam" pos="0.05 0 0.03" xyaxes="0 -1 0 0 0 1"
+                      fovy="60" resolution="224 224"/>
+
+              <!-- End-effector site -->
+              <site name="ee_site" pos="0.1 0 0" size="0.01"/>
+
+              <!-- Scoop -->
+              <body name="scoop" pos="0.1 0 0">
+                <joint name="scoop_joint" type="hinge" axis="0 1 0"
+                       range="-0.5 1.2"/>
+                <!-- Scoop body: a shallow box acting as bucket -->
+                <geom name="scoop_base" type="box" size="0.05 0.08 0.005"
+                      pos="0.05 0 0" mass="0.3" material="metal_mat"
+                      contype="1" conaffinity="1"/>
+                <!-- Scoop front lip -->
+                <geom name="scoop_lip" type="box" size="0.005 0.08 0.03"
+                      pos="0.1 0 0.025" mass="0.1" material="metal_mat"
+                      contype="1" conaffinity="1"/>
+                <!-- Scoop back wall -->
+                <geom name="scoop_back" type="box" size="0.005 0.08 0.03"
+                      pos="0.0 0 0.025" mass="0.1" material="metal_mat"
+                      contype="1" conaffinity="1"/>
+                <site name="scoop_site" pos="0.05 0 0.01" size="0.01"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <!-- ============ SLUDGE BLOCKS ============ -->
+    <!-- Default sludge blocks — positions randomized at runtime -->
+    <body name="sludge_0" pos="1.2 0.1 0.06">
+      <freejoint name="sludge_0_joint"/>
+      <geom name="sludge_0_geom" type="box" size="0.06 0.05 0.04" mass="0.5"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_1" pos="1.5 -0.1 0.06">
+      <freejoint name="sludge_1_joint"/>
+      <geom name="sludge_1_geom" type="box" size="0.07 0.04 0.05" mass="0.6"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_2" pos="1.8 0.05 0.05">
+      <freejoint name="sludge_2_joint"/>
+      <geom name="sludge_2_geom" type="box" size="0.05 0.06 0.035" mass="0.4"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_3" pos="2.0 -0.15 0.07">
+      <freejoint name="sludge_3_joint"/>
+      <geom name="sludge_3_geom" type="box" size="0.08 0.05 0.05" mass="0.7"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_4" pos="2.3 0.0 0.055">
+      <freejoint name="sludge_4_joint"/>
+      <geom name="sludge_4_geom" type="box" size="0.055 0.055 0.04" mass="0.45"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_5" pos="1.0 -0.05 0.06">
+      <freejoint name="sludge_5_joint"/>
+      <geom name="sludge_5_geom" type="box" size="0.065 0.045 0.045" mass="0.55"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_6" pos="1.3 0.2 0.05">
+      <freejoint name="sludge_6_joint"/>
+      <geom name="sludge_6_geom" type="box" size="0.05 0.05 0.035" mass="0.4"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_7" pos="1.7 -0.2 0.065">
+      <freejoint name="sludge_7_joint"/>
+      <geom name="sludge_7_geom" type="box" size="0.07 0.06 0.05" mass="0.65"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_8" pos="2.1 0.15 0.055">
+      <freejoint name="sludge_8_joint"/>
+      <geom name="sludge_8_geom" type="box" size="0.06 0.04 0.04" mass="0.5"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_9" pos="2.5 -0.08 0.06">
+      <freejoint name="sludge_9_joint"/>
+      <geom name="sludge_9_geom" type="box" size="0.075 0.055 0.045" mass="0.6"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_10" pos="1.1 -0.18 0.05">
+      <freejoint name="sludge_10_joint"/>
+      <geom name="sludge_10_geom" type="box" size="0.05 0.045 0.035" mass="0.35"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_11" pos="1.6 0.12 0.07">
+      <freejoint name="sludge_11_joint"/>
+      <geom name="sludge_11_geom" type="box" size="0.08 0.06 0.05" mass="0.7"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_12" pos="2.2 -0.12 0.055">
+      <freejoint name="sludge_12_joint"/>
+      <geom name="sludge_12_geom" type="box" size="0.06 0.05 0.04" mass="0.5"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_13" pos="2.6 0.08 0.06">
+      <freejoint name="sludge_13_joint"/>
+      <geom name="sludge_13_geom" type="box" size="0.065 0.05 0.045" mass="0.55"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+    <body name="sludge_14" pos="1.9 0.2 0.065">
+      <freejoint name="sludge_14_joint"/>
+      <geom name="sludge_14_geom" type="box" size="0.07 0.055 0.05" mass="0.6"
+            material="sludge_mat" contype="1" conaffinity="1"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Base actuators -->
+    <velocity name="base_fwd" joint="base_x" kv="500" ctrlrange="-1 1"/>
+    <velocity name="base_lat" joint="base_y" kv="500" ctrlrange="-1 1"/>
+    <velocity name="base_yaw" joint="base_yaw" kv="100" ctrlrange="-1 1"/>
+    <!-- Arm joint actuators -->
+    <position name="j1_act" joint="j1" kp="50" ctrlrange="-2.0 2.0"/>
+    <position name="j2_act" joint="j2" kp="40" ctrlrange="-2.5 2.5"/>
+    <position name="j3_act" joint="j3" kp="30" ctrlrange="-2.5 2.5"/>
+    <position name="j4_act" joint="j4" kp="20" ctrlrange="-3.14 3.14"/>
+    <!-- Scoop actuator -->
+    <position name="scoop_act" joint="scoop_joint" kp="15" ctrlrange="-0.5 1.2"/>
+  </actuator>
+
+  <sensor>
+    <jointpos name="j1_pos" joint="j1"/>
+    <jointpos name="j2_pos" joint="j2"/>
+    <jointpos name="j3_pos" joint="j3"/>
+    <jointpos name="j4_pos" joint="j4"/>
+    <jointvel name="j1_vel" joint="j1"/>
+    <jointvel name="j2_vel" joint="j2"/>
+    <jointvel name="j3_vel" joint="j3"/>
+    <jointvel name="j4_vel" joint="j4"/>
+    <framepos name="ee_pos" objtype="site" objname="ee_site"/>
+    <framequat name="ee_quat" objtype="site" objname="ee_site"/>
+    <framepos name="base_pos" objtype="body" objname="base"/>
+  </sensor>
+</mujoco>
