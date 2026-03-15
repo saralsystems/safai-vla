@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class TrainConfig:
-    """Configuration for SmolVLA-SewerBot fine-tuning.
+    """Configuration for SmolVLA-SafaiBot fine-tuning.
 
     Defaults are tuned for MacBook M4 Pro (Phase 0).
     For DGX Cloud (Phase 1), increase batch_size to 32,

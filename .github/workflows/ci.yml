@@ -37,8 +37,8 @@ jobs:
       - name: Smoke test
         run: |
           python -c "
-          from envs.mujoco.sewer_env import SewerVLAEnv
-          env = SewerVLAEnv()
+          from envs.mujoco.safai_env import SafaiVLAEnv
+          env = SafaiVLAEnv()
           obs, info = env.reset()
           for _ in range(10):
               action = env.action_space.sample()

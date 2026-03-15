@@ -127,7 +127,7 @@ class ExtractPolicy(BasePolicy):
 if __name__ == "__main__":
     import argparse
 
-    from envs.mujoco.sewer_env import SewerVLAEnv
+    from envs.mujoco.safai_env import SafaiVLAEnv
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true")
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.test:
-        env = SewerVLAEnv()
+        env = SafaiVLAEnv()
         policy = ExtractPolicy(seed=42)
         policy.set_env(env)
         successes = 0

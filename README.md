@@ -1,4 +1,4 @@
-# Sewer-VLA
+# SafAI VLA
 
 **Open-source Vision-Language-Action model for autonomous sewer maintenance robotics in India.**
 
@@ -9,7 +9,7 @@
 ```mermaid
 graph LR
     SIM["Synthetic Training<br/><i>Isaac Sim · Indian sewer geometry<br/>10,000+ episodes</i>"]
-    MODEL["SmolVLA-SewerBot<br/><i>1.5B param VLA · LoRA fine-tuned<br/>4 language-conditioned sub-tasks</i>"]
+    MODEL["SmolVLA-SafaiBot<br/><i>1.5B param VLA · LoRA fine-tuned<br/>4 language-conditioned sub-tasks</i>"]
     EDGE["Edge Deployment<br/><i>Jetson Orin · TensorRT · <100ms<br/>sub-₹2L hardware · no cloud</i>"]
     ROBOT["Autonomous Operation<br/><i>navigate · assess · extract · deposit<br/>zero human entry</i>"]
     SIM --> MODEL --> EDGE --> ROBOT
@@ -29,12 +29,12 @@ Phase 1 (Isaac Sim on DGX Cloud) in progress.
 ## Quickstart
 
 ```bash
-git clone https://github.com/saralsystems/sewer-vla.git
-cd sewer-vla
+git clone https://github.com/saralsystems/safai-vla.git
+cd safai-vla
 pip install -e ".[dev]"
 
 # Run the environment
-python -c "from envs.mujoco import SewerVLAEnv; env = SewerVLAEnv(); obs, _ = env.reset(); print('Ready.')"
+python -c "from envs.mujoco import SafaiVLAEnv; env = SafaiVLAEnv(); obs, _ = env.reset(); print('Ready.')"
 
 # Collect expert demonstrations
 python -m data.collect --task all --episodes 100 --output data/raw/
@@ -74,11 +74,11 @@ The VLA handles four language-conditioned sub-tasks through a single checkpoint:
 - [x] Scripted expert policies (4 sub-tasks)
 - [x] Data collection pipeline → LeRobot format
 - [x] SmolVLA LoRA fine-tuning (v0 toy checkpoint)
-- [x] SewerBench evaluation harness
+- [x] SafaiBench evaluation harness
 - [x] HuggingFace release (dataset + model)
 - [ ] Isaac Sim full environment (DGX Cloud)
 - [ ] Synthetic data at scale (10K+ episodes)
-- [ ] SmolVLA-SewerBot v1 (production checkpoint)
+- [ ] SmolVLA-SafaiBot v1 (production checkpoint)
 - [ ] TensorRT optimization for Jetson Orin
 - [ ] Sim-to-real with IIT / Genrobotics partners
 

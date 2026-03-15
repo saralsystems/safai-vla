@@ -1,4 +1,4 @@
-"""SewerBench -- evaluation harness for sewer-vla Phase 0.
+"""SafaiBench -- evaluation harness for safai-vla Phase 0.
 
 Usage::
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from envs.mujoco.sewer_env import TASKS, SewerVLAEnv
+from envs.mujoco.safai_env import TASKS, SafaiVLAEnv
 from evaluation.metrics import compute_task_metrics
 from policies import POLICY_MAP
 
@@ -46,7 +46,7 @@ class RandomPolicy:
 
 
 def run_episode(
-    env: SewerVLAEnv,
+    env: SafaiVLAEnv,
     policy: object,
     task: str,
     seed: int,
@@ -107,7 +107,7 @@ def evaluate_policy(
         Dict mapping task name to its ``compute_task_metrics`` output, plus an
         ``"overall"`` key aggregating across tasks.
     """
-    env = SewerVLAEnv()
+    env = SafaiVLAEnv()
     all_results: list[dict] = []
     per_task: dict[str, list[dict]] = {t: [] for t in TASKS}
 
@@ -160,7 +160,7 @@ def save_bar_chart(report: dict, output_path: Path) -> None:
         ax.bar(x + i * width, rates, width, label=pname)
 
     ax.set_ylabel("Success Rate (%)")
-    ax.set_title("SewerBench v0 -- Per-Task Success Rates")
+    ax.set_title("SafaiBench v0 -- Per-Task Success Rates")
     ax.set_xticks(x + width * (len(policies) - 1) / 2)
     short_labels = [t.split()[0] for t in tasks]
     ax.set_xticklabels(short_labels)
@@ -180,7 +180,7 @@ def save_bar_chart(report: dict, output_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="SewerBench evaluation harness for sewer-vla Phase 0.",
+        description="SafaiBench evaluation harness for safai-vla Phase 0.",
     )
     parser.add_argument(
         "--checkpoint",
@@ -232,7 +232,7 @@ def main() -> None:
         tag = f"expert_{task.split()[0]}"
         logger.info("  Policy: %s", tag)
         # Evaluate only on the matching task
-        env = SewerVLAEnv()
+        env = SafaiVLAEnv()
         task_results: list[dict] = []
         for ep in range(args.episodes):
             result = run_episode(env, policy, task, seed=args.seed + ep)
@@ -264,7 +264,7 @@ def main() -> None:
 
     # ---- Summary ----
     print("\n" + "=" * 60)
-    print("SewerBench v0 Results")
+    print("SafaiBench v0 Results")
     print("=" * 60)
     for pname, pdata in report.items():
         overall = pdata.get("overall", {})

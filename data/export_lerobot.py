@@ -139,7 +139,7 @@ def export_episodes(input_dir: Path, output_dir: Path) -> None:
 
     # Write metadata sidecar for downstream consumers.
     meta_info = {
-        "robot_type": "sewer-vla-mujoco-proxy",
+        "robot_type": "safai-vla-mujoco-proxy",
         "total_episodes": len(episode_files),
         "total_frames": global_idx,
         "fps": 20,

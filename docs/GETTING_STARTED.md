@@ -1,10 +1,10 @@
-# Getting Started with sewer-vla
+# Getting Started with SafAI VLA
 
 A step-by-step guide for first-time users. No robotics or ML experience required.
 
 ## What is this?
 
-sewer-vla is an AI system that learns to control a robot inside sewer pipes. The robot can:
+safai-vla is an AI system that learns to control a robot inside sewer pipes. The robot can:
 - **Navigate** through pipes to find blockages (sludge)
 - **Position** its arm above the sludge
 - **Extract** sludge with a scoop
@@ -38,8 +38,8 @@ sudo apt install python3.11 python3.11-venv
 ## Step 1: Clone and Install
 
 ```bash
-git clone https://github.com/saralsystems/sewer-vla.git
-cd sewer-vla
+git clone https://github.com/saralsystems/safai-vla.git
+cd safai-vla
 
 # Create a virtual environment
 python3.11 -m venv .venv
@@ -55,8 +55,8 @@ This installs MuJoCo (physics simulator), gymnasium (robotics API), and everythi
 
 ```bash
 python -c "
-from envs.mujoco import SewerVLAEnv
-env = SewerVLAEnv()
+from envs.mujoco import SafaiVLAEnv
+env = SafaiVLAEnv()
 obs, info = env.reset()
 print('Environment created!')
 print(f'Front camera shape: {obs[\"front_rgb\"].shape}')
@@ -109,10 +109,10 @@ python -m policies.deposit --test --episodes 10
 
 ```bash
 python -c "
-from envs.mujoco import SewerVLAEnv
+from envs.mujoco import SafaiVLAEnv
 import imageio
 
-env = SewerVLAEnv()
+env = SafaiVLAEnv()
 obs, _ = env.reset(seed=42, options={'task': 'navigate to blockage'})
 frame = env.render()
 imageio.imwrite('my_first_render.png', frame)
@@ -177,7 +177,7 @@ Note: The model quality will be low in Phase 0 — this is expected. The value i
 
 ## Step 9: Run the Benchmark
 
-SewerBench evaluates policies across all 4 tasks:
+SafaiBench evaluates policies across all 4 tasks:
 
 ```bash
 python -m evaluation.sewerbench --episodes 20
@@ -212,10 +212,10 @@ The robot sees the world through:
 ## Project Structure
 
 ```
-sewer-vla/
+safai-vla/
 ├── envs/mujoco/          # Simulated sewer environment
 │   ├── assets/            # MJCF robot model (XML)
-│   ├── sewer_env.py       # Gymnasium environment
+│   ├── safai_env.py       # Gymnasium environment
 │   └── test_env.py        # Tests
 ├── policies/              # Expert controllers
 │   ├── navigate.py        # Drive to sludge

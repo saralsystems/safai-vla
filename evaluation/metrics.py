@@ -1,4 +1,4 @@
-"""Metric computation functions for SewerBench evaluation."""
+"""Metric computation functions for SafaiBench evaluation."""
 
 import logging
 

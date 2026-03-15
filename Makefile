@@ -27,7 +27,7 @@ export-data:
 	python -m data.export_lerobot --input data/raw/ --output data/lerobot/
 
 push-data:
-	python -m data.push_to_hub --dataset data/lerobot/ --repo saral-systems/sewer-vla-mujoco-v0
+	python -m data.push_to_hub --dataset data/lerobot/ --repo saralsystems/safai-vla-mujoco-v0
 
 train:
 	python -m training.finetune --dataset data/lerobot/ --output checkpoints/v0/

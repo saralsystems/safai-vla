@@ -3,13 +3,13 @@
 import numpy as np
 import pytest
 
-from envs.mujoco.sewer_env import TASKS, SewerVLAEnv
+from envs.mujoco.safai_env import TASKS, SafaiVLAEnv
 
 
 @pytest.fixture
 def env():
     """Create a fresh environment for each test."""
-    e = SewerVLAEnv()
+    e = SafaiVLAEnv()
     yield e
     e.close()
 

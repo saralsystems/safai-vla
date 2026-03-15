@@ -2,13 +2,13 @@
 
 ## Phase 0 — MuJoCo Proxy (current)
 
-MuJoCo sewer environment with rigid-body sludge blocks. SmolVLA toy checkpoint trained on scripted expert demonstrations. SewerBench evaluation harness. All runnable on a MacBook.
+MuJoCo sewer environment with rigid-body sludge blocks. SmolVLA toy checkpoint trained on scripted expert demonstrations. SafaiBench evaluation harness. All runnable on a MacBook.
 
 **Goal:** Establish the pipeline, dataset schema, benchmark, and HuggingFace presence. Claim the namespace. Prove the concept is buildable.
 
 ## Phase 1 — Isaac Sim Synthetic (next)
 
-Full Isaac Sim environment with PhysX 5 particle-based sludge, procedural pipe generation via OpenUSD, aggressive domain randomization. 10,000+ episodes on DGX Cloud. Production SmolVLA-SewerBot v1 checkpoint.
+Full Isaac Sim environment with PhysX 5 particle-based sludge, procedural pipe generation via OpenUSD, aggressive domain randomization. 10,000+ episodes on DGX Cloud. Production SmolVLA-SafaiBot v1 checkpoint.
 
 **Goal:** A model that actually works in simulation. Publishable results on arXiv.
 

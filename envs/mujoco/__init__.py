@@ -1,5 +1,5 @@
-"""MuJoCo sewer environment for sewer-vla Phase 0."""
+"""MuJoCo sewer environment for SafAI VLA Phase 0."""
 
-from envs.mujoco.sewer_env import SewerVLAEnv
+from envs.mujoco.safai_env import SafaiVLAEnv
 
-__all__ = ["SewerVLAEnv"]
+__all__ = ["SafaiVLAEnv"]

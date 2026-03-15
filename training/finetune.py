@@ -1,4 +1,4 @@
-"""SmolVLA LoRA fine-tuning on sewer-vla LeRobot dataset.
+"""SmolVLA LoRA fine-tuning on safai-vla LeRobot dataset.
 
 Loads a LeRobot-format HuggingFace Arrow dataset, applies LoRA to SmolVLA (or a
 fallback stub MLP when SmolVLA is unavailable), and trains with MSE loss on
@@ -58,7 +58,7 @@ def set_seed(seed: int) -> None:
 # ---------------------------------------------------------------------------
 
 
-class SewerVLADataset(Dataset):
+class SafaiVLADataset(Dataset):
     """Wraps a HuggingFace Arrow dataset for action-prediction training.
 
     Each sample yields (state_tensor, action_tensor) where state_tensor is the
@@ -197,8 +197,8 @@ def run_training(config: TrainConfig) -> None:
     n_total = len(raw_ds)
     n_train = int(n_total * config.train_split)
     raw_ds = raw_ds.shuffle(seed=config.seed)
-    train_ds = SewerVLADataset(raw_ds.select(range(n_train)))
-    val_ds = SewerVLADataset(raw_ds.select(range(n_train, n_total)))
+    train_ds = SafaiVLADataset(raw_ds.select(range(n_train)))
+    val_ds = SafaiVLADataset(raw_ds.select(range(n_train, n_total)))
     logger.info("Train samples: %d | Val samples: %d", len(train_ds), len(val_ds))
 
     train_loader = DataLoader(
@@ -370,7 +370,7 @@ def _save_train_summary(
 def main() -> None:
     """CLI entry point for fine-tuning."""
     parser = argparse.ArgumentParser(
-        description="Fine-tune SmolVLA (or stub) with LoRA on sewer-vla dataset"
+        description="Fine-tune SmolVLA (or stub) with LoRA on safai-vla dataset"
     )
     parser.add_argument("--dataset", type=str, default="data/lerobot/", help="Dataset path")
     parser.add_argument("--output", type=str, default="checkpoints/v0/", help="Output dir")

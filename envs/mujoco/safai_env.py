@@ -1,4 +1,4 @@
-"""MuJoCo sewer environment with Gymnasium API for sewer-vla Phase 0."""
+"""MuJoCo sewer environment with Gymnasium API for SafAI VLA Phase 0."""
 
 import logging
 from pathlib import Path
@@ -26,7 +26,7 @@ NUM_ARM_JOINTS = 4
 ACTION_DIM = 7  # [base_fwd, base_ang, j1, j2, j3, j4, scoop]
 
 
-class SewerVLAEnv(gym.Env):
+class SafaiVLAEnv(gym.Env):
     """MuJoCo sewer maintenance environment.
 
     Observation space:

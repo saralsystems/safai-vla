@@ -11,19 +11,19 @@ license: apache-2.0
 task_categories:
   - robotics
 tags:
-  - sewer-vla
+  - safai-vla
   - lerobot
   - mujoco
   - manipulation
 ---
 
-# sewer-vla-mujoco-v0
+# safai-vla-mujoco-v0
 
 Expert demonstration dataset for autonomous sewer maintenance robotics.
 
 ## Embodiment
 
-- **Platform:** sewer-vla-mujoco-proxy
+- **Platform:** safai-vla-mujoco-proxy
 - **Base:** Tracked differential-drive, 600mm width
 - **Arm:** 4-DOF articulated arm with scoop end-effector
 - **Cameras:** Front RGB (480x640), Wrist RGB (224x224)
@@ -105,7 +105,7 @@ def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Push dataset to HuggingFace Hub")
     parser.add_argument("--dataset", type=str, default="data/lerobot/")
-    parser.add_argument("--repo", type=str, default="saral-systems/sewer-vla-mujoco-v0")
+    parser.add_argument("--repo", type=str, default="saralsystems/safai-vla-mujoco-v0")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)

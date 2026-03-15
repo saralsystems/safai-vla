@@ -8,14 +8,14 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
-from envs.mujoco.sewer_env import TASKS, SewerVLAEnv
+from envs.mujoco.safai_env import TASKS, SafaiVLAEnv
 from policies import POLICY_MAP
 
 logger = logging.getLogger(__name__)
 
 
 def collect_episode(
-    env: SewerVLAEnv,
+    env: SafaiVLAEnv,
     task: str,
     noise_scale: float,
     seed: int,
@@ -125,7 +125,7 @@ def collect_all(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    env = SewerVLAEnv()
+    env = SafaiVLAEnv()
     episode_idx = 0
 
     for task in tasks:

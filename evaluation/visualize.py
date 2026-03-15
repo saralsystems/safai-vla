@@ -18,10 +18,10 @@ def render_episode_gif(
     fps: int = 10,
 ) -> None:
     """Render an episode as a GIF."""
-    from envs.mujoco.sewer_env import SewerVLAEnv
+    from envs.mujoco.safai_env import SafaiVLAEnv
     from policies import POLICY_MAP
 
-    env = SewerVLAEnv()
+    env = SafaiVLAEnv()
     policy_cls = POLICY_MAP.get(task)
     if policy_cls is None:
         logger.error("Unknown task: %s", task)
@@ -82,7 +82,7 @@ def plot_results(results_path: str, output_path: str) -> None:
     ax.set_xticks(range(len(tasks)))
     ax.set_xticklabels(tasks, rotation=45, ha="right", fontsize=8)
     ax.set_ylabel("Success Rate (%)")
-    ax.set_title("SewerBench v0 Results")
+    ax.set_title("SafaiBench v0 Results")
     ax.set_ylim(0, 105)
 
     for bar, rate in zip(bars, rates):
@@ -116,7 +116,7 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if args.gifs:
-        from envs.mujoco.sewer_env import TASKS
+        from envs.mujoco.safai_env import TASKS
 
         gif_dir = output_dir / "episodes"
         gif_dir.mkdir(parents=True, exist_ok=True)

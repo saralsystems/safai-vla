@@ -1,4 +1,4 @@
-# Contributing to Sewer-VLA
+# Contributing to SafAI VLA
 
 We welcome contributions from robotics researchers, ML engineers, municipal technology teams, and anyone who cares about ending manual scavenging in India.
 
@@ -12,13 +12,13 @@ We welcome contributions from robotics researchers, ML engineers, municipal tech
 
 **Policy improvements** — better scripted experts, RL-trained policies, or human demonstrations that increase data quality and diversity.
 
-**Evaluation** — additional SewerBench metrics, real-hardware benchmarking, cross-embodiment transfer testing.
+**Evaluation** — additional SafaiBench metrics, real-hardware benchmarking, cross-embodiment transfer testing.
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/saral-systems/sewer-vla.git
-cd sewer-vla
+git clone https://github.com/saralsystems/safai-vla.git
+cd safai-vla
 pip install -e ".[dev]"
 make test
 ```
